@@ -16,18 +16,9 @@ const app = express();
 // Helmet aide à sécuriser les headers HTTP
 app.use(helmet());
 
-// CORS configuration
+// CORS configuration - Allow all origins for mobile app and development
 app.use(cors({
-  origin: (origin, callback) => {
-    // Permettre les requêtes sans origin (mobile apps, Postman, etc.)
-    if (!origin) return callback(null, true);
-
-    if (config.allowedOrigins.indexOf(origin) !== -1 || config.nodeEnv === 'development') {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true, // Allow all origins
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
