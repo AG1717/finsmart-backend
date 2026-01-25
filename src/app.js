@@ -14,7 +14,11 @@ const app = express();
  * Security Middleware
  */
 // Helmet aide à sécuriser les headers HTTP
-app.use(helmet());
+// Disable crossOriginResourcePolicy and crossOriginOpenerPolicy to allow CORS
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+  crossOriginOpenerPolicy: false,
+}));
 
 // CORS configuration - Allow all origins for mobile app and development
 app.use(cors({
