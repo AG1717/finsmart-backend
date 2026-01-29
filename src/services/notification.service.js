@@ -10,7 +10,8 @@ class NotificationService {
    */
   static async notifyNewUser(user) {
     try {
-      await AdminNotification.createNotification({
+      logger.info(`[NOTIFICATION] Creating notification for new user: ${user.email}`);
+      const notification = await AdminNotification.createNotification({
         type: 'user_registered',
         title: '🎉 Nouvel utilisateur inscrit',
         message: `${user.username} (${user.email}) vient de s'inscrire`,
@@ -22,9 +23,9 @@ class NotificationService {
           currency: user.preferences?.currency?.code
         }
       });
-      logger.info(`Admin notification created: New user ${user.email}`);
+      logger.info(`[NOTIFICATION] Admin notification created: ${notification._id} - New user ${user.email}`);
     } catch (error) {
-      logger.error('Error creating new user notification:', error);
+      logger.error('[NOTIFICATION] Error creating new user notification:', error);
     }
   }
 
@@ -33,7 +34,8 @@ class NotificationService {
    */
   static async notifyFirstGoal(user, goal) {
     try {
-      await AdminNotification.createNotification({
+      logger.info(`[NOTIFICATION] Creating first goal notification for user: ${user.email}`);
+      const notification = await AdminNotification.createNotification({
         type: 'user_first_goal',
         title: '🎯 Premier objectif créé',
         message: `${user.username} a créé son premier objectif: "${goal.name}"`,
@@ -47,9 +49,9 @@ class NotificationService {
           currency: goal.amounts?.currency?.symbol
         }
       });
-      logger.info(`Admin notification created: First goal for ${user.email}`);
+      logger.info(`[NOTIFICATION] First goal notification created: ${notification._id} for ${user.email}`);
     } catch (error) {
-      logger.error('Error creating first goal notification:', error);
+      logger.error('[NOTIFICATION] Error creating first goal notification:', error);
     }
   }
 
@@ -253,6 +255,8 @@ class NotificationService {
    */
   static async getNotifications(filters = {}, options = {}) {
     try {
+      logger.info(`[NOTIFICATION GET] Fetching notifications with filters: ${JSON.stringify(filters)}`);
+
       const {
         type,
         severity,
@@ -281,6 +285,8 @@ class NotificationService {
         if (endDate) query.createdAt.$lte = new Date(endDate);
       }
 
+      logger.info(`[NOTIFICATION GET] Query: ${JSON.stringify(query)}`);
+
       // Tri
       const sortOptions = {};
       sortOptions[sortBy] = order === 'asc' ? 1 : -1;
@@ -299,6 +305,8 @@ class NotificationService {
 
       const total = await AdminNotification.countDocuments(query);
 
+      logger.info(`[NOTIFICATION GET] Found ${notifications.length} notifications (total: ${total})`);
+
       return {
         notifications,
         pagination: {
@@ -309,7 +317,7 @@ class NotificationService {
         }
       };
     } catch (error) {
-      logger.error('Error getting notifications:', error);
+      logger.error('[NOTIFICATION GET] Error getting notifications:', error);
       throw error;
     }
   }

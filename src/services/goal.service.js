@@ -47,8 +47,13 @@ export const getUserGoals = async (userId, filters = {}) => {
     pages: Math.ceil(total / limit)
   };
 
-  // Obtenir les statistiques
-  const statistics = await Goal.getUserStatistics(userId);
+  // Obtenir les statistiques FILTRÉES par timeframe/category/status
+  const statisticsFilters = {};
+  if (timeframe) statisticsFilters.timeframe = timeframe;
+  if (category) statisticsFilters.category = category;
+  if (status) statisticsFilters.status = status;
+
+  const statistics = await Goal.getUserStatistics(userId, statisticsFilters);
 
   return {
     goals,

@@ -266,6 +266,8 @@ export const deleteUser = async (req, res) => {
  */
 export const getAllGoals = async (req, res) => {
   try {
+    logger.info(`[ADMIN GOALS] Request from admin ${req.user?.email || 'unknown'}`);
+
     const {
       page = 1,
       limit = 20,
@@ -285,6 +287,8 @@ export const getAllGoals = async (req, res) => {
     if (timeframe) filter.timeframe = timeframe;
     if (status) filter.status = status;
 
+    logger.info(`[ADMIN GOALS] Filter: ${JSON.stringify(filter)}`);
+
     // Tri
     const sortOptions = {};
     sortOptions[sortBy] = order === 'asc' ? 1 : -1;
@@ -300,6 +304,8 @@ export const getAllGoals = async (req, res) => {
       .limit(parseInt(limit));
 
     const total = await Goal.countDocuments(filter);
+
+    logger.info(`[ADMIN GOALS] Found ${goals.length} goals (total: ${total})`);
 
     return successResponse(res, {
       goals,

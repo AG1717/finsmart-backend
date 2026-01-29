@@ -32,6 +32,7 @@ export const trackEvent = async (req, res) => {
  */
 export const getMetrics = async (req, res) => {
   try {
+    logger.info(`[METRICS] Request from user ${req.user?.email || 'unknown'}`);
     const { startDate, endDate, period = '7days' } = req.query;
 
     // Calculer la date de début selon la période
@@ -119,6 +120,8 @@ export const getMetrics = async (req, res) => {
     const totalGoals = await Goal.countDocuments();
     const completedGoals = await Goal.countDocuments({ status: 'completed' });
     const activeGoals = await Goal.countDocuments({ status: 'active' });
+
+    logger.info(`[METRICS] Goals - Total: ${totalGoals}, Completed: ${completedGoals}, Active: ${activeGoals}`);
 
     // 6. Taux de succès des objectifs
     const goalSuccessRate = totalGoals > 0 ? ((completedGoals / totalGoals) * 100).toFixed(2) : 0;

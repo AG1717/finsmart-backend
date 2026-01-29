@@ -3,6 +3,7 @@ import { successResponse } from '../utils/response.util.js';
 import * as goalService from '../services/goal.service.js';
 import NotificationService from '../services/notification.service.js';
 import Goal from '../models/Goal.model.js';
+import logger from '../config/logger.js';
 
 /**
  * @desc    Créer un nouvel objectif
@@ -10,12 +11,18 @@ import Goal from '../models/Goal.model.js';
  * @access  Private
  */
 export const createGoal = asyncHandler(async (req, res) => {
+  logger.info(`[GOAL CREATE] User ${req.userId} creating goal: ${JSON.stringify(req.body)}`);
+
   const goal = await goalService.createGoal(req.userId, req.body);
+  logger.info(`[GOAL CREATE] Goal created successfully: ${goal._id} - "${goal.name}"`);
 
   // Vérifier si c'est le premier objectif de l'utilisateur
   const userGoalsCount = await Goal.countDocuments({ userId: req.userId });
+  logger.info(`[GOAL CREATE] User ${req.userId} now has ${userGoalsCount} goals`);
+
   if (userGoalsCount === 1) {
     // Premier objectif
+    logger.info(`[GOAL CREATE] First goal for user, triggering notification`);
     await NotificationService.notifyFirstGoal(req.user, goal);
   }
 
@@ -24,8 +31,10 @@ export const createGoal = asyncHandler(async (req, res) => {
 
   // Vérifier les milestones (5 objectifs, 10 objectifs, etc.)
   if (userGoalsCount === 5) {
+    logger.info(`[GOAL CREATE] User reached 5 goals milestone`);
     await NotificationService.notifyUserMilestone(req.user, '5_goals');
   } else if (userGoalsCount === 10) {
+    logger.info(`[GOAL CREATE] User reached 10 goals milestone`);
     await NotificationService.notifyUserMilestone(req.user, '10_goals');
   }
 
@@ -113,6 +122,25 @@ export const deleteGoal = asyncHandler(async (req, res) => {
     res,
     null,
     'Goal deleted successfully'
+  );
+});
+
+/**
+ * @desc    Supprimer tous les objectifs de l'utilisateur
+ * @route   DELETE /api/v1/goals
+ * @access  Private
+ */
+export const deleteAllGoals = asyncHandler(async (req, res) => {
+  logger.info(`[GOAL DELETE ALL] User ${req.userId} deleting all goals`);
+
+  const result = await Goal.deleteMany({ userId: req.userId });
+
+  logger.info(`[GOAL DELETE ALL] Deleted ${result.deletedCount} goals for user ${req.userId}`);
+
+  successResponse(
+    res,
+    { deletedCount: result.deletedCount },
+    `All ${result.deletedCount} goals deleted successfully`
   );
 });
 

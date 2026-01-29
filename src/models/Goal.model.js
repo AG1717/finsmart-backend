@@ -214,8 +214,14 @@ goalSchema.methods.addContribution = async function(amount, note = '') {
 };
 
 // Méthode statique pour obtenir les statistiques d'un utilisateur
-goalSchema.statics.getUserStatistics = async function(userId) {
-  const goals = await this.find({ userId });
+goalSchema.statics.getUserStatistics = async function(userId, filters = {}) {
+  // Construire la requête avec les filtres
+  const query = { userId };
+  if (filters.timeframe) query.timeframe = filters.timeframe;
+  if (filters.category) query.category = filters.category;
+  if (filters.status) query.status = filters.status;
+
+  const goals = await this.find(query);
 
   const stats = {
     totalGoals: goals.length,

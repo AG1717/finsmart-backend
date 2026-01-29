@@ -74,6 +74,17 @@ router.put(
 );
 
 /**
+ * @route   DELETE /api/v1/goals/all
+ * @desc    Supprimer tous les objectifs de l'utilisateur
+ * @access  Private
+ * NOTE: Cette route doit être AVANT /:id pour éviter que "all" soit interprété comme un ID
+ */
+router.delete(
+  '/all',
+  goalController.deleteAllGoals
+);
+
+/**
  * @route   DELETE /api/v1/goals/:id
  * @desc    Supprimer un objectif
  * @access  Private
