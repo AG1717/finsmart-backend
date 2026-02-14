@@ -69,6 +69,10 @@ const userSchema = new Schema({
     enum: ['user', 'admin'],
     default: 'user'
   },
+  resetCode: {
+    code: { type: String, default: null },
+    expiresAt: { type: Date, default: null },
+  },
   refreshTokens: [{
     type: String
   }],

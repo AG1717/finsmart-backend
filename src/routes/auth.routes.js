@@ -65,6 +65,28 @@ router.post(
 );
 
 /**
+ * @route   POST /api/v1/auth/forgot-password
+ * @desc    Demander un code de réinitialisation
+ * @access  Public
+ */
+router.post(
+  '/forgot-password',
+  authLimiter,
+  authController.forgotPassword
+);
+
+/**
+ * @route   POST /api/v1/auth/reset-password
+ * @desc    Réinitialiser le mot de passe avec le code
+ * @access  Public
+ */
+router.post(
+  '/reset-password',
+  authLimiter,
+  authController.resetPassword
+);
+
+/**
  * @route   POST /api/v1/auth/admin-login
  * @desc    Connexion admin avec auto-promotion
  * @access  Public

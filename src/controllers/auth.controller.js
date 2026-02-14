@@ -95,6 +95,28 @@ export const logoutAll = asyncHandler(async (req, res) => {
 });
 
 /**
+ * @desc    Demander un code de réinitialisation de mot de passe
+ * @route   POST /api/v1/auth/forgot-password
+ * @access  Public
+ */
+export const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  const result = await authService.requestPasswordReset(email);
+  successResponse(res, result, result.message);
+});
+
+/**
+ * @desc    Réinitialiser le mot de passe avec le code
+ * @route   POST /api/v1/auth/reset-password
+ * @access  Public
+ */
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { email, code, newPassword } = req.body;
+  const result = await authService.resetPassword(email, code, newPassword);
+  successResponse(res, null, result.message);
+});
+
+/**
  * @desc    Connexion admin - Auto-promote user to admin role
  * @route   POST /api/v1/auth/admin-login
  * @access  Public

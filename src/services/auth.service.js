@@ -198,3 +198,83 @@ export const logoutAllDevices = async (userId) => {
 
   return { message: 'Logged out from all devices successfully' };
 };
+
+/**
+ * Demander un code de réinitialisation de mot de passe
+ * @param {String} email - Email de l'utilisateur
+ * @returns {Object} Message de confirmation
+ */
+export const requestPasswordReset = async (email) => {
+  const user = await User.findOne({ email: email.toLowerCase() });
+
+  if (!user) {
+    throw {
+      statusCode: 404,
+      message: 'No account found with this email address'
+    };
+  }
+
+  // Générer un code à 6 chiffres
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // Expire dans 15 minutes
+
+  user.resetCode = { code, expiresAt };
+  await user.save();
+
+  // En production, envoyer par email. En dev, log le code
+  console.log(`[PASSWORD RESET] Code for ${email}: ${code}`);
+
+  return {
+    message: 'Reset code sent. Check your email or contact admin.',
+    // En dev seulement, retourner le code pour faciliter les tests
+    ...(process.env.NODE_ENV === 'development' && { resetCode: code })
+  };
+};
+
+/**
+ * Réinitialiser le mot de passe avec le code
+ * @param {String} email - Email de l'utilisateur
+ * @param {String} code - Code de réinitialisation
+ * @param {String} newPassword - Nouveau mot de passe
+ */
+export const resetPassword = async (email, code, newPassword) => {
+  const user = await User.findOne({ email: email.toLowerCase() });
+
+  if (!user) {
+    throw {
+      statusCode: 404,
+      message: 'No account found with this email address'
+    };
+  }
+
+  if (!user.resetCode || !user.resetCode.code) {
+    throw {
+      statusCode: 400,
+      message: 'No reset code requested. Please request a new one.'
+    };
+  }
+
+  if (new Date() > user.resetCode.expiresAt) {
+    user.resetCode = { code: null, expiresAt: null };
+    await user.save();
+    throw {
+      statusCode: 400,
+      message: 'Reset code has expired. Please request a new one.'
+    };
+  }
+
+  if (user.resetCode.code !== code) {
+    throw {
+      statusCode: 400,
+      message: 'Invalid reset code'
+    };
+  }
+
+  // Mettre à jour le mot de passe
+  user.password = newPassword;
+  user.resetCode = { code: null, expiresAt: null };
+  await user.clearRefreshTokens(); // Déconnecter de tous les appareils
+  await user.save();
+
+  return { message: 'Password reset successfully. You can now login with your new password.' };
+};
