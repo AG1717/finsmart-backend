@@ -10,37 +10,49 @@ import { errorHandler, notFoundHandler } from './middleware/error.middleware.js'
 
 const app = express();
 
-/**
- * Security Middleware
- */
-// Helmet aide à sécuriser les headers HTTP
-// Disable crossOriginResourcePolicy and crossOriginOpenerPolicy to allow CORS
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const isOriginAllowed = (origin, allowedOrigins) => {
+  if (!origin) return true;
+  if (allowedOrigins.includes('*')) return true;
+
+  return allowedOrigins.some((allowedOrigin) => {
+    if (allowedOrigin === origin) return true;
+    if (!allowedOrigin.includes('*')) return false;
+
+    const pattern = `^${escapeRegex(allowedOrigin).replace(/\\\*/g, '.*')}$`;
+    return new RegExp(pattern).test(origin);
+  });
+};
+
 app.use(helmet({
   crossOriginResourcePolicy: false,
   crossOriginOpenerPolicy: false,
 }));
 
-// CORS configuration - Allow all origins for mobile app and development
-app.use(cors({
-  origin: true, // Allow all origins
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (isOriginAllowed(origin, config.allowedOrigins)) {
+      return callback(null, true);
+    }
+
+    logger.warn(`CORS blocked origin: ${origin}`);
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 204,
+};
 
-/**
- * Body Parser Middleware
- */
+app.use(cors(corsOptions));
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-/**
- * Logging Middleware
- */
 if (config.nodeEnv === 'development') {
   app.use(morgan('dev'));
 } else {
-  // En production, utiliser un format plus concis
   app.use(morgan('combined', {
     stream: {
       write: (message) => logger.info(message.trim())
@@ -48,26 +60,15 @@ if (config.nodeEnv === 'development') {
   }));
 }
 
-/**
- * Rate Limiting
- * Skip rate limiting for admin routes (admins need unrestricted access)
- */
 app.use('/api/', (req, res, next) => {
-  // Skip rate limiting for admin routes
   if (req.path.startsWith('/v1/admin')) {
     return next();
   }
   generalLimiter(req, res, next);
 });
 
-/**
- * API Routes
- */
 app.use('/api/v1', routes);
 
-/**
- * Root endpoint
- */
 app.get('/', (req, res) => {
   res.json({
     message: 'Welcome to FinSmart API',
@@ -102,10 +103,6 @@ app.get('/', (req, res) => {
   });
 });
 
-/**
- * Error Handling Middleware
- * Doit être après toutes les routes
- */
 app.use(notFoundHandler);
 app.use(errorHandler);
 

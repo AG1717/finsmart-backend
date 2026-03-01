@@ -21,7 +21,10 @@ const config = {
 
   // CORS
   allowedOrigins: process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',')
+    ? process.env.ALLOWED_ORIGINS
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean)
     : ['http://localhost:8081'],
 
   // Rate Limiting
@@ -40,7 +43,7 @@ if (!config.jwt.secret || !config.jwt.refreshSecret) {
 }
 
 if (config.jwt.secret.length < 32 || config.jwt.refreshSecret.length < 32) {
-  console.warn('⚠️  Warning: JWT secrets should be at least 32 characters long for security');
+  console.warn('Warning: JWT secrets should be at least 32 characters long for security');
 }
 
 export default config;

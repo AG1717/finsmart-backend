@@ -22,5 +22,5 @@ services:
         value: 15m
       - key: JWT_REFRESH_EXPIRES_IN
         value: 7d
-      - key: CORS_ORIGIN
+      - key: ALLOWED_ORIGINS
         value: "*"
