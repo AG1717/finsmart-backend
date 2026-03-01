@@ -11,17 +11,20 @@ import { errorHandler, notFoundHandler } from './middleware/error.middleware.js'
 const app = express();
 
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const normalizeOrigin = (value) => (value || '').trim().replace(/\/+$/, '').toLowerCase();
 
 const isOriginAllowed = (origin, allowedOrigins) => {
-  if (!origin) return true;
+  const normalizedOrigin = normalizeOrigin(origin);
+  if (!normalizedOrigin) return true;
   if (allowedOrigins.includes('*')) return true;
 
   return allowedOrigins.some((allowedOrigin) => {
-    if (allowedOrigin === origin) return true;
-    if (!allowedOrigin.includes('*')) return false;
+    const normalizedAllowedOrigin = normalizeOrigin(allowedOrigin);
+    if (normalizedAllowedOrigin === normalizedOrigin) return true;
+    if (!normalizedAllowedOrigin.includes('*')) return false;
 
-    const pattern = `^${escapeRegex(allowedOrigin).replace(/\\\*/g, '.*')}$`;
-    return new RegExp(pattern).test(origin);
+    const pattern = `^${escapeRegex(normalizedAllowedOrigin).replace(/\\\*/g, '.*')}$`;
+    return new RegExp(pattern).test(normalizedOrigin);
   });
 };
 
