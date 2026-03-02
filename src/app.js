@@ -10,38 +10,13 @@ import { errorHandler, notFoundHandler } from './middleware/error.middleware.js'
 
 const app = express();
 
-const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const normalizeOrigin = (value) => (value || '').trim().replace(/\/+$/, '').toLowerCase();
-
-const isOriginAllowed = (origin, allowedOrigins) => {
-  const normalizedOrigin = normalizeOrigin(origin);
-  if (!normalizedOrigin) return true;
-  if (allowedOrigins.includes('*')) return true;
-
-  return allowedOrigins.some((allowedOrigin) => {
-    const normalizedAllowedOrigin = normalizeOrigin(allowedOrigin);
-    if (normalizedAllowedOrigin === normalizedOrigin) return true;
-    if (!normalizedAllowedOrigin.includes('*')) return false;
-
-    const pattern = `^${escapeRegex(normalizedAllowedOrigin).replace(/\\\*/g, '.*')}$`;
-    return new RegExp(pattern).test(normalizedOrigin);
-  });
-};
-
 app.use(helmet({
   crossOriginResourcePolicy: false,
   crossOriginOpenerPolicy: false,
 }));
 
 const corsOptions = {
-  origin: (origin, callback) => {
-    if (isOriginAllowed(origin, config.allowedOrigins)) {
-      return callback(null, true);
-    }
-
-    logger.warn(`CORS blocked origin: ${origin}`);
-    return callback(new Error('Not allowed by CORS'));
-  },
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -49,6 +24,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
