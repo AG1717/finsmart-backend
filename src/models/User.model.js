@@ -88,10 +88,6 @@ const userSchema = new Schema({
   }
 });
 
-// Index pour optimiser les recherches
-userSchema.index({ email: 1 });
-userSchema.index({ username: 1 });
-
 // Hasher le mot de passe avant de sauvegarder
 userSchema.pre('save', async function() {
   // Seulement si le mot de passe est modifié

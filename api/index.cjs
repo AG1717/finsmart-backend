@@ -4,7 +4,12 @@ const mongoose = require('mongoose');
 // Configuration
 const MONGODB_URI = process.env.MONGODB_URI;
 const JWT_SECRET = process.env.JWT_SECRET || 'temp-secret';
-const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS?.split(',') || ['*'];
+const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS
+    .split(',')
+    .map((origin) => origin.trim().replace(/^"|"$/g, ''))
+    .filter(Boolean)
+  : ['*'];
 
 // Connexion MongoDB (réutilisée)
 let isConnected = false;
@@ -33,6 +38,7 @@ module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Vary', 'Origin');
   }
 
   // Preflight

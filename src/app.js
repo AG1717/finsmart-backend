@@ -15,8 +15,31 @@ app.use(helmet({
   crossOriginOpenerPolicy: false,
 }));
 
+const defaultAllowedOrigins = [
+  'http://localhost:8080',
+  'http://localhost:8081',
+  'http://localhost:8082',
+  'http://localhost:8090',
+  'http://localhost:9000',
+  'http://localhost:19006',
+  'https://finsmart-mobile.vercel.app',
+];
+
+const allowedOrigins = (config.allowedOrigins?.length ? config.allowedOrigins : defaultAllowedOrigins)
+  .map((origin) => origin.trim());
+
 const corsOptions = {
-  origin: true,
+  origin: (origin, callback) => {
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],

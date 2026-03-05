@@ -23,9 +23,9 @@ const config = {
   allowedOrigins: process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS
       .split(',')
-      .map((origin) => origin.trim())
+      .map((origin) => origin.trim().replace(/^"|"$/g, ''))
       .filter(Boolean)
-    : ['http://localhost:8081'],
+    : [],
 
   // Rate Limiting
   rateLimit: {

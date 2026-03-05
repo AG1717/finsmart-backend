@@ -54,8 +54,7 @@ const categorySchema = new Schema({
   timestamps: true
 });
 
-// Index sur le nom et l'ordre
-categorySchema.index({ name: 1 });
+// Index sur l'ordre
 categorySchema.index({ order: 1 });
 
 // Données pré-remplies pour les catégories

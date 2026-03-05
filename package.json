@@ -8,13 +8,17 @@
     "dev": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["fintech", "financial-goals", "expense-tracker"],
+  "keywords": [
+    "fintech",
+    "financial-goals",
+    "expense-tracker"
+  ],
   "author": "FinSmart Team",
   "license": "ISC",
   "description": "Backend API for FinSmart financial goals management app",
   "dependencies": {
     "bcryptjs": "^3.0.3",
-    "cors": "^2.8.5",
+    "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
