@@ -2,6 +2,7 @@ import { asyncHandler } from '../middleware/error.middleware.js';
 import { successResponse } from '../utils/response.util.js';
 import * as authService from '../services/auth.service.js';
 import NotificationService from '../services/notification.service.js';
+import logger from '../config/logger.js';
 
 /**
  * @desc    Inscription d'un nouvel utilisateur
@@ -12,7 +13,11 @@ export const register = asyncHandler(async (req, res) => {
   const result = await authService.registerUser(req.body);
 
   // Notifier les admins du nouvel utilisateur
-  await NotificationService.notifyNewUser(result.user);
+  try {
+    await NotificationService.notifyNewUser(result.user);
+  } catch (notificationError) {
+    logger.error('Non-blocking notification error on register:', notificationError);
+  }
 
   successResponse(
     res,

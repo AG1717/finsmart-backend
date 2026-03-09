@@ -9,6 +9,8 @@ import { generalLimiter } from './middleware/rateLimit.middleware.js';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware.js';
 
 const app = express();
+// Render/Vercel are behind proxies; needed for reliable req.ip and rate-limit behavior.
+app.set('trust proxy', 1);
 
 app.use(helmet({
   crossOriginResourcePolicy: false,
