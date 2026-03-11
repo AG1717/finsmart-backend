@@ -97,7 +97,8 @@ app.get('/', (req, res) => {
         update: 'PUT /api/v1/goals/:id',
         delete: 'DELETE /api/v1/goals/:id',
         contribute: 'POST /api/v1/goals/:id/contribute',
-        dashboard: 'GET /api/v1/goals/dashboard'
+        dashboard: 'GET /api/v1/goals/dashboard',
+        reset: 'POST /api/v1/goals/reset'
       },
       categories: {
         list: 'GET /api/v1/categories'

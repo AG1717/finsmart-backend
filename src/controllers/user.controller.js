@@ -1,6 +1,7 @@
 import { asyncHandler } from '../middleware/error.middleware.js';
 import { successResponse, errorResponse } from '../utils/response.util.js';
 import User from '../models/User.model.js';
+import Goal from '../models/Goal.model.js';
 import { ERROR_MESSAGES } from '../utils/constants.js';
 
 /**
@@ -44,10 +45,13 @@ export const updateProfile = asyncHandler(async (req, res) => {
   }
 
   // Mettre à jour les préférences
+  let updatedCurrency = null;
+
   if (req.body.preferences) {
     Object.keys(req.body.preferences).forEach(key => {
       if (key === 'currency' && req.body.preferences.currency) {
         user.preferences.currency = req.body.preferences.currency;
+        updatedCurrency = req.body.preferences.currency;
       } else if (req.body.preferences[key] !== undefined) {
         user.preferences[key] = req.body.preferences[key];
       }
@@ -55,6 +59,18 @@ export const updateProfile = asyncHandler(async (req, res) => {
   }
 
   await user.save();
+
+  if (updatedCurrency) {
+    await Goal.updateMany(
+      { userId: req.userId },
+      {
+        $set: {
+          'amounts.currency.code': updatedCurrency.code,
+          'amounts.currency.symbol': updatedCurrency.symbol
+        }
+      }
+    );
+  }
 
   successResponse(
     res,

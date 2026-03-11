@@ -144,6 +144,26 @@ export const deleteAllGoals = asyncHandler(async (req, res) => {
   );
 });
 
+
+/**
+ * @desc    R?initialiser tous les objectifs de l'utilisateur
+ * @route   POST /api/v1/goals/reset
+ * @access  Private
+ */
+export const resetGoals = asyncHandler(async (req, res) => {
+  logger.info(`[GOAL RESET] User ${req.userId} resetting goals`);
+
+  const result = await goalService.resetUserGoals(req.userId);
+
+  logger.info(`[GOAL RESET] Reset ${result.modifiedCount} goals for user ${req.userId}`);
+
+  successResponse(
+    res,
+    { modifiedCount: result.modifiedCount },
+    'Goals reset successfully'
+  );
+});
+
 /**
  * @desc    Ajouter une contribution à un objectif
  * @route   POST /api/v1/goals/:id/contribute

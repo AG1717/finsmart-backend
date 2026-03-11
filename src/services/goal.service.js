@@ -162,6 +162,32 @@ export const deleteGoal = async (goalId, userId) => {
 };
 
 /**
+ * Service pour réinitialiser tous les objectifs d'un utilisateur
+ */
+export const resetUserGoals = async (userId) => {
+  const now = new Date();
+  const result = await Goal.updateMany(
+    { userId },
+    {
+      $set: {
+        'amounts.current': 0,
+        'progress.percentage': 0,
+        'progress.lastUpdated': now,
+        status: 'active',
+        'dates.completed': null,
+        'metadata.contributions': [],
+        'metadata.milestones': []
+      }
+    }
+  );
+
+  return {
+    matchedCount: result.matchedCount ?? result.n ?? 0,
+    modifiedCount: result.modifiedCount ?? result.nModified ?? 0
+  };
+};
+
+/**
  * Service pour ajouter une contribution à un objectif
  */
 export const addContribution = async (goalId, userId, amount, note) => {

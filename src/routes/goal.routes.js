@@ -26,6 +26,18 @@ router.get(
   goalController.getDashboard
 );
 
+
+/**
+ * @route   POST /api/v1/goals/reset
+ * @desc    R?initialiser tous les objectifs de l'utilisateur
+ * @access  Private
+ */
+router.post(
+  '/reset',
+  goalController.resetGoals
+);
+
+
 /**
  * @route   GET /api/v1/goals
  * @desc    Obtenir tous les objectifs de l'utilisateur
