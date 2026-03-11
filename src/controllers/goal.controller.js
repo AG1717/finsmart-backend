@@ -155,11 +155,11 @@ export const resetGoals = asyncHandler(async (req, res) => {
 
   const result = await goalService.resetUserGoals(req.userId);
 
-  logger.info(`[GOAL RESET] Reset ${result.modifiedCount} goals for user ${req.userId}`);
+  logger.info(`[GOAL RESET] Deleted ${result.deletedCount} goals for user ${req.userId}`);
 
   successResponse(
     res,
-    { modifiedCount: result.modifiedCount },
+    { deletedCount: result.deletedCount },
     'Goals reset successfully'
   );
 });

@@ -165,28 +165,10 @@ export const deleteGoal = async (goalId, userId) => {
  * Service pour réinitialiser tous les objectifs d'un utilisateur
  */
 export const resetUserGoals = async (userId) => {
-  const now = new Date();
-  const result = await Goal.updateMany(
-    { userId },
-    {
-      $set: {
-        'amounts.current': 0,
-        'amounts.target': 0,
-        'progress.percentage': 0,
-        'progress.lastUpdated': now,
-        status: 'active',
-        'dates.started': now,
-        'dates.target': null,
-        'dates.completed': null,
-        'metadata.contributions': [],
-        'metadata.milestones': []
-      }
-    }
-  );
+  const result = await Goal.deleteMany({ userId });
 
   return {
-    matchedCount: result.matchedCount ?? result.n ?? 0,
-    modifiedCount: result.modifiedCount ?? result.nModified ?? 0
+    deletedCount: result.deletedCount ?? 0
   };
 };
 
