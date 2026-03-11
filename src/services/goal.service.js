@@ -171,9 +171,12 @@ export const resetUserGoals = async (userId) => {
     {
       $set: {
         'amounts.current': 0,
+        'amounts.target': 0,
         'progress.percentage': 0,
         'progress.lastUpdated': now,
         status: 'active',
+        'dates.started': now,
+        'dates.target': null,
         'dates.completed': null,
         'metadata.contributions': [],
         'metadata.milestones': []
